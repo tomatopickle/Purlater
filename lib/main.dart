@@ -199,7 +199,8 @@ class _HomePageState extends State<HomePage> {
     void _onResult(String barcodeId) async {
       _openLoadingDialog(context);
       var res = await http.read(Uri.parse(
-          'https://cors-anywhere-tomatopickle.herokuapp.com/https://api.upcitemdb.com/prod/trial/lookup?upc=0190199503977'));
+          'https://cors-anywhere-tomatopickle.herokuapp.com/https://api.upcitemdb.com/prod/trial/lookup?upc=' +
+              barcodeId));
 
       Map results = json.decode(res);
       Map result = results["items"][0];
