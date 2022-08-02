@@ -198,10 +198,44 @@ class _HomePageState extends State<HomePage> {
 
     void _onResult(String barcodeId) async {
       _openLoadingDialog(context);
-      var res = await http.read(Uri.parse(
-          'https://cors-anywhere-tomatopickle.herokuapp.com/https://api.upcitemdb.com/prod/trial/lookup?upc=' +
-              barcodeId));
-
+      String res;
+      try {
+        res = await http.read(Uri.parse(
+            'https://cors-anywhere-tomatopickle.herokuapp.com/https://api.upcitemdb.com/prod/trial/lookup?upc=$barcodeId'));
+        //code that has potential to throw an exception
+      } catch (e) {
+        Navigator.pop(context);
+        showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (context) {
+              return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        const Text(
+                          'Unknown Barcode',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          softWrap: false,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text("Close"))
+                      ]));
+            });
+        return;
+      }
       Map results = json.decode(res);
       Map result = results["items"][0];
       Navigator.pop(context);
