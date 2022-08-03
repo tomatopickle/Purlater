@@ -317,7 +317,9 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text("Purlater"),
       ),
-      body: Container(child: getSavedItems(savedItems)),
+      body: Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: getSavedItems(savedItems)),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           debugPrint("scanning");
