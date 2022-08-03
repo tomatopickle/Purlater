@@ -198,44 +198,21 @@ class _HomePageState extends State<HomePage> {
 
     void _onResult(String barcodeId) async {
       _openLoadingDialog(context);
-      String res;
+      final response;
       try {
-        res = await http.read(Uri.parse(
+        response = await http.read(Uri.parse(
             'https://cors-anywhere-tomatopickle.herokuapp.com/https://api.upcitemdb.com/prod/trial/lookup?upc=$barcodeId'));
+        if (response.statusCode != 200) {
+          showErrorSheet(context);
+          return;
+        }
         //code that has potential to throw an exception
       } catch (e) {
         Navigator.pop(context);
-        showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (context) {
-              return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                  child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        const Text(
-                          'Unknown Barcode',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          softWrap: false,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text("Close"))
-                      ]));
-            });
+        showErrorSheet(context);
         return;
       }
+      String res = response.body;
       Map results = json.decode(res);
       Map result = results["items"][0];
       Navigator.pop(context);
@@ -338,8 +315,8 @@ void _openLoadingDialog(BuildContext context) {
     barrierDismissible: false,
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-          content: Row(children: [
+      return  AlertDialog(
+          content:  Row(children: [
         CircularProgressIndicator(),
         SizedBox(
           width: 25,
@@ -348,4 +325,34 @@ void _openLoadingDialog(BuildContext context) {
       ]));
     },
   );
+}
+
+void showErrorSheet(context) {
+  showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const Text(
+                    'Unknown Barcode',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("Close"))
+                ]));
+      });
 }
