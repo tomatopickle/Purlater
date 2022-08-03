@@ -265,9 +265,10 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(
                         height: 10,
                       ),
-                      ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.network(result["images"][0])),
+                      Center(
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Image.network(result["images"][0]))),
                       const SizedBox(
                         height: 10,
                       ),
