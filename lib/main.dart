@@ -170,12 +170,14 @@ class _HomePageState extends State<HomePage> {
             });
           },
           child: ListTile(
-            leading: ClipRRect(
-                borderRadius: BorderRadius.circular(5.0),
-                child: Image.network(
-                  item["images"][0],
-                  width: 50,
-                )),
+            leading: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5.0),
+                    child: Image.network(
+                      item["images"][0],
+                      width: 50,
+                    ))),
             title: Text(
               item["title"],
               maxLines: 1,
@@ -200,15 +202,17 @@ class _HomePageState extends State<HomePage> {
       _openLoadingDialog(context);
       final response;
       try {
-        response = await http.read(Uri.parse(
+        response = await http.Client().get(Uri.parse(
             'https://cors-anywhere-tomatopickle.herokuapp.com/https://api.upcitemdb.com/prod/trial/lookup?upc=$barcodeId'));
         if (response.statusCode != 200) {
           showErrorSheet(context);
+          print(response.statusCode);
           return;
         }
         //code that has potential to throw an exception
       } catch (e) {
         Navigator.pop(context);
+        print(e);
         showErrorSheet(context);
         return;
       }
@@ -315,8 +319,8 @@ void _openLoadingDialog(BuildContext context) {
     barrierDismissible: false,
     context: context,
     builder: (BuildContext context) {
-      return  AlertDialog(
-          content:  Row(children: [
+      return AlertDialog(
+          content: Row(children: const [
         CircularProgressIndicator(),
         SizedBox(
           width: 25,

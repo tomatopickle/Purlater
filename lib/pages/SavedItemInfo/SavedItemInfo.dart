@@ -53,7 +53,7 @@ void openSavedItemInfoScreen(
                             Navigator.of(context).pop();
                           },
                           child: Text("Close")),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       ElevatedButton(
