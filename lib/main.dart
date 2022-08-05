@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'pages/BarcodeScanner/BarcodeScanner.dart';
 import 'pages/SavedItemInfo/SavedItemInfo.dart';
+import 'pages/Camera/Camera.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:expendable_fab/expendable_fab.dart';
 
 final storage = new FlutterSecureStorage();
 
@@ -60,7 +62,7 @@ class App extends StatelessWidget {
           // When navigating to the "/" route, build the HomeScreen widget.
           '/': (context) => const HomePage(),
           // When navigating to the "/second" route, build the SecondScreen widget.
-          // '/scan': (context) => BarcodeScannerPage()
+          '/cam': (context) => WebCam()
         });
   }
 }
@@ -74,63 +76,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var result;
-  /* var savedItems = <Map>[
-    {
-      "ean": "0190199503977",
-      "title":
-          "Apple iPhone SE 2020 2nd Gen 64/128/256GB Unlocked Very Good Condition",
-      "description":
-          "Apple A13 Bionic Hexa-Core 12.0 MP Rear Camera 7 MP Front-Facing Camera 3GB RAM 64GB 4.7' Retina IPS LCD 1334 x 750 326 ppi Non-removable Li-Ion Battery 1821mAh iOS 13",
-      "upc": "190199503977",
-      "brand": "Apple",
-      "model": "MX9T2",
-      "color": "",
-      "size": "",
-      "dimension": "",
-      "weight": "",
-      "category": "Electronics > Communications > Telephony > Mobile Phones",
-      "currency": "CAD",
-      "lowest_recorded_price": 299,
-      "highest_recorded_price": 1145.25,
-      "images": [
-        "https://c1.neweggimages.com/NeweggImage/productimage/75-113-609-V01.jpg",
-        "https://www.techinthebasket.com/media/catalog/product/t/e/techinthebasket_apple_iphone_se_2020_64gb_white-1_2.jpg"
-      ],
-      "offers": [
-        {
-          "merchant": "Newegg Canada",
-          "domain": "Newegg Canada",
-          "title":
-              "Apple iPhone SE A2296 4G LTE Cell Phone 4.7' White 64GB 3GB RAM",
-          "currency": "CAD",
-          "list_price": "",
-          "price": 1135.59,
-          "shipping": "34.00",
-          "condition": "New",
-          "availability": "",
-          "link":
-              "https://www.upcitemdb.com/norob/alink/?id=y2x253233303e464u2&tid=1&seq=1659161582&plt=22ae442…",
-          "updated_t": 1602774891
-        },
-        {
-          "merchant": "TechInTheBasket UK",
-          "domain": "TechInTheBasket UK",
-          "title": "Apple iPhone SE 2020 Dual SIM 64GB - White",
-          "currency": "GBP",
-          "list_price": "",
-          "price": 335.99,
-          "shipping": "",
-          "condition": "New",
-          "availability": "",
-          "link":
-              "https://www.upcitemdb.com/norob/alink/?id=y2x243u2v2z2b464q2&tid=1&seq=1659161582&plt=63c173c…",
-          "updated_t": 1635118668
-        }
-      ],
-      "elid": "384351125268"
-    }
-  ];
-*/
   var savedItems = [];
   @override
   void initState() {
@@ -301,15 +246,29 @@ class _HomePageState extends State<HomePage> {
       body: Padding(
           padding: const EdgeInsets.only(top: 5),
           child: getSavedItems(savedItems)),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          debugPrint("scanning");
-          openScanner(context, _onResult);
-        },
-        tooltip: 'Save Item',
-        // child: const Icon(Icons.add),
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: ExpendableFab(
+        distance: 112.0,
+        children: [
+          FloatingActionButton(
+            onPressed: () {},
+            child: const Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              openScanner(context, _onResult);
+            },
+            tooltip: "Scan Barcode",
+            child: const Icon(Icons.document_scanner_rounded),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/cam');
+            },
+            tooltip: "Scan Picture",
+            child: const Icon(Icons.camera_alt_rounded),
+          ),
+        ],
+      ),
     );
   }
 }
