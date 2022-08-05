@@ -24,8 +24,9 @@ class _WebCamState extends State<WebCam> {
   }
 
   getMedia() {
-    html.window.navigator.mediaDevices
-        ?.getUserMedia({"video": true}).then((streamHandle) {
+    html.window.navigator.mediaDevices?.getUserMedia({
+      "video": {"facingMode": 'environment'}
+    }).then((streamHandle) {
       _webcamVideoElement
         ..srcObject = streamHandle
         ..autoplay = true;
