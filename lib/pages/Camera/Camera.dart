@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:html' as html;
 import 'dart:ui' as ui;
+import 'dart:convert';
+import 'dart:typed_data';
 
 class WebCam extends StatefulWidget {
   @override
@@ -69,9 +71,19 @@ class _WebCamState extends State<WebCam> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          html.CanvasElement canvas =
+              html.CanvasElement(width: 750, height: 750);
+          html.CanvasRenderingContext2D ctx = canvas.context2D;
+          ctx.drawImage(_webcamVideoElement, 0, 0);
+          print(dataFromBase64String(canvas.toDataUrl('image/jpeg')));
+        },
         child: Icon(Icons.camera_alt_rounded),
       ),
     );
   }
+}
+
+Uint8List dataFromBase64String(String base64String) {
+  return base64Decode(base64String);
 }

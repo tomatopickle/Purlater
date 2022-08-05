@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:expendable_fab/expendable_fab.dart';
+import 'package:image_picker/image_picker.dart';
 
 final storage = new FlutterSecureStorage();
 
@@ -62,7 +63,8 @@ class App extends StatelessWidget {
           // When navigating to the "/" route, build the HomeScreen widget.
           '/': (context) => const HomePage(),
           // When navigating to the "/second" route, build the SecondScreen widget.
-          '/cam': (context) => WebCam()
+          '/cam': (context) => WebCam(),
+          // '/saveCam': (context,byArray) => WebCam(),
         });
   }
 }
@@ -261,8 +263,12 @@ class _HomePageState extends State<HomePage> {
             child: const Icon(Icons.document_scanner_rounded),
           ),
           FloatingActionButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/cam');
+            onPressed: () async {
+              // Navigator.pushNamed(context, '/cam');
+              final ImagePicker _picker = ImagePicker();
+
+              final XFile? photo =
+                  await _picker.pickImage(source: ImageSource.camera);
             },
             tooltip: "Scan Picture",
             child: const Icon(Icons.camera_alt_rounded),
