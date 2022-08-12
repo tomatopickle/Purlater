@@ -29,7 +29,7 @@ environment:
 dependencies:
   flutter: 
     sdk: flutter
-  flex_color_scheme: ^5.0.1
+  flex_color_scheme: 
   google_fonts: ^3.0.1
   parse_server_sdk_flutter: any
   transparent_image: any
