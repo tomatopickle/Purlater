@@ -26,8 +26,8 @@ void openSavedItemInfoScreen(
                           onPressed: () {
                             showDialog(
                               context: context,
-                              builder: (context) =>
-                                  EditProductInfoPage(result, "Save Item"),
+                              builder: (context) => EditProductInfoPage(
+                                  result, "Save Item", (item) {}),
                             );
                           },
                           label: const Text("Edit")),

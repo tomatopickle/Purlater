@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 class EditProductInfoPage extends StatefulWidget {
   final Map item;
   final String title;
+  final Function(Map item) onSaved;
 
-  const EditProductInfoPage(this.item, this.title);
+  const EditProductInfoPage(this.item, this.title, this.onSaved);
 
   @override
   _EditProductInfoPageState createState() => _EditProductInfoPageState();
@@ -19,6 +20,7 @@ class _EditProductInfoPageState extends State<EditProductInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.item);
     Map controllers = {
       'name': TextEditingController(text: widget.item['title']),
       'description':
@@ -78,7 +80,16 @@ class _EditProductInfoPageState extends State<EditProductInfoPage> {
                 height: 10,
               ),
               ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Map result = {
+                      'title': controllers['name'].text,
+                      'description': controllers['description'].text,
+                      'brand': controllers['brand'].text,
+                      'category': controllers['category'].text,
+                      'images': widget.item['images']
+                    };
+                    widget.onSaved(result);
+                  },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(
                         40), // fromHeight use double.infinity as width and 40 is the height

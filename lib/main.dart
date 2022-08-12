@@ -158,7 +158,10 @@ class _HomePageState extends State<HomePage> {
                                 showDialog(
                                   context: context,
                                   builder: (context) => EditProductInfoPage(
-                                      result, 'Edit Product Info'),
+                                      result, 'Edit Product Info', (result) {
+                                    addItem(result);
+                                    Navigator.pop(context);
+                                  }),
                                 );
                               },
                               label: Text("Edit")),
@@ -233,6 +236,20 @@ class _HomePageState extends State<HomePage> {
                 if (parseResponse.success && parseResponse.result != null) {
                   print(parseResponse.result);
                   Navigator.pop(context);
+                  Map result = {
+                    'title': parseResponse.result,
+                    'images': [e.result['file']['url']],
+                    'description': '',
+                    'category': '',
+                    'brand': '',
+                  };
+                  showDialog(
+                    context: context,
+                    builder: (context) => EditProductInfoPage(
+                        result, 'Save Product Info', (result) {
+                      addItem(result);
+                    }),
+                  );
                 }
               });
             },
