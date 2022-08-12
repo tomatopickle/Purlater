@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'pages/BarcodeScanner/BarcodeScanner.dart';
-import 'pages/SavedItemInfo/SavedItemInfo.dart';
-import 'pages/Camera/Camera.dart';
+import 'package:purlater/views/EditProductInfo/EditProductInfo.dart';
+import 'package:purlater/views/productInfoUI/productInfoUI.dart';
+import 'package:purlater/views/productsListUI/productsListUI.dart';
+import 'views/BarcodeScanner/BarcodeScanner.dart';
+import 'views/SavedItemInfo/SavedItemInfo.dart';
+import 'views/Camera/Camera.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,6 +13,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:expendable_fab/expendable_fab.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 
 final storage = new FlutterSecureStorage();
 
@@ -102,51 +106,8 @@ class _HomePageState extends State<HomePage> {
       await storage.write(key: "savedItems", value: json.encode(savedItems));
     }
 
-    Widget getSavedItems(List items) {
-      var listEls = <Widget>[];
-      for (var item in items) {
-        listEls.add(InkWell(
-          onTap: () {
-            openSavedItemInfoScreen(context, item, (ean) {
-              setState(() {
-                savedItems.removeWhere((item) => item["ean"] == ean);
-                storage
-                    .write(key: "savedItems", value: json.encode(savedItems))
-                    .then((value) => {Navigator.of(context).pop()});
-              });
-            });
-          },
-          child: ListTile(
-            leading: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(5.0),
-                    child: Image.network(
-                      item["images"][0],
-                      width: 50,
-                    ))),
-            title: Text(
-              item["title"],
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ));
-      }
-      if (listEls.isEmpty) {
-        return const Center(
-            child: Padding(
-                padding: EdgeInsets.all(25),
-                child: Text(
-                  "No saved items, maybe add one using the button below",
-                  textAlign: TextAlign.center,
-                )));
-      }
-      return ListView(children: listEls);
-    }
-
     void _onResult(String barcodeId) async {
-      _openLoadingDialog(context);
+      _openLoadingDialog(context, "Fetching Barcode Info");
       final response;
       try {
         response = await http.Client().get(Uri.parse(
@@ -165,8 +126,14 @@ class _HomePageState extends State<HomePage> {
       }
       String res = response.body;
       Map results = json.decode(res);
-      Map result = results["items"][0];
       Navigator.pop(context);
+
+      if (results["items"].length <= 0) {
+        showErrorSheet(context);
+        return;
+      }
+      Map result = results["items"][0];
+      debugPrint(result.toString());
       showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -178,49 +145,25 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        result["title"],
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        softWrap: false,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Opacity(opacity: 0.65, child: Text(result["category"])),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Center(
-                          child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
-                              child: Image.network(result["images"][0]))),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Opacity(
-                          opacity: 0.75,
-                          child: Text(result["brand"],
-                              style: TextStyle(fontSize: 16))),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Text(result["description"]),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      productInfoUI(context, result),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          TextButton(
+                          OutlinedButton.icon(
+                              icon: Icon(
+                                Icons.edit_note_rounded,
+                                size: 24.0,
+                              ),
                               onPressed: () {
-                                Navigator.of(context).pop();
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => EditProductInfoPage(
+                                      result, 'Edit Product Info'),
+                                );
                               },
-                              child: Text("Cancel")),
+                              label: Text("Edit")),
                           SizedBox(
-                            width: 5,
+                            width: 10,
                           ),
                           ElevatedButton(
                               onPressed: () {
@@ -247,7 +190,16 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Padding(
           padding: const EdgeInsets.only(top: 5),
-          child: getSavedItems(savedItems)),
+          child: getSavedItems(savedItems, (item) {
+            openSavedItemInfoScreen(context, item, (ean) {
+              setState(() {
+                savedItems.removeWhere((item) => item["ean"] == ean);
+                storage
+                    .write(key: "savedItems", value: json.encode(savedItems))
+                    .then((value) => {Navigator.of(context).pop()});
+              });
+            });
+          })),
       floatingActionButton: ExpendableFab(
         distance: 112.0,
         children: [
@@ -264,11 +216,25 @@ class _HomePageState extends State<HomePage> {
           ),
           FloatingActionButton(
             onPressed: () async {
-              // Navigator.pushNamed(context, '/cam');
               final ImagePicker _picker = ImagePicker();
-
               final XFile? photo =
                   await _picker.pickImage(source: ImageSource.camera);
+              _openLoadingDialog(context, "Scanning Image");
+              ParseFileBase? parseFile;
+              parseFile =
+                  ParseWebFile(await photo!.readAsBytes(), name: 'test.jpg');
+              await parseFile.save();
+              final gallery = ParseObject('Gallery')..set('file', parseFile);
+              gallery.save().then((e) async {
+                final ParseCloudFunction function = ParseCloudFunction('ocr');
+                print(e.result['file']['url']);
+                final ParseResponse parseResponse = await function
+                    .execute(parameters: {'src': e.result['file']['url']});
+                if (parseResponse.success && parseResponse.result != null) {
+                  print(parseResponse.result);
+                  Navigator.pop(context);
+                }
+              });
             },
             tooltip: "Scan Picture",
             child: const Icon(Icons.camera_alt_rounded),
@@ -279,18 +245,18 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-void _openLoadingDialog(BuildContext context) {
+void _openLoadingDialog(BuildContext context, String message) {
   showDialog(
     barrierDismissible: false,
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-          content: Row(children: const [
-        CircularProgressIndicator(),
-        SizedBox(
+          content: Row(children: [
+        const CircularProgressIndicator(),
+        const SizedBox(
           width: 25,
         ),
-        Text("Fetching barcode info")
+        Text(message)
       ]));
     },
   );

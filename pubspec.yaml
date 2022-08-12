@@ -27,7 +27,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  flutter:
+  flutter: 
     sdk: flutter
   flex_color_scheme: ^5.0.1
   google_fonts: ^3.0.1
@@ -41,6 +41,7 @@ dependencies:
   flutter_secure_storage: ^5.0.2
   expendable_fab: ^0.0.3
   image_picker: ^0.8.5+3
+  flutter_tesseract_ocr: ^0.4.20
 
 dev_dependencies:
   flutter_test:
