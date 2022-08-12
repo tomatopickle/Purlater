@@ -86,7 +86,8 @@ class _EditProductInfoPageState extends State<EditProductInfoPage> {
                       'description': controllers['description'].text,
                       'brand': controllers['brand'].text,
                       'category': controllers['category'].text,
-                      'images': widget.item['images']
+                      'images': widget.item['images'],
+                      'ean': widget.item['ean'],
                     };
                     widget.onSaved(result);
                   },

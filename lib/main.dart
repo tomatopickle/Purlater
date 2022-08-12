@@ -201,6 +201,15 @@ class _HomePageState extends State<HomePage> {
                     .write(key: "savedItems", value: json.encode(savedItems))
                     .then((value) => {Navigator.of(context).pop()});
               });
+            }, (item) {
+              savedItems.removeWhere((e) => e['ean'] == item['ean']);
+              debugPrint(savedItems.toString());
+              storage
+                  .write(key: "savedItems", value: json.encode(savedItems))
+                  .then((value) {
+                addItem(item);
+                Navigator.of(context).pop();
+              });
             });
           })),
       floatingActionButton: ExpendableFab(
@@ -242,12 +251,14 @@ class _HomePageState extends State<HomePage> {
                     'description': '',
                     'category': '',
                     'brand': '',
+                    'ean': DateTime.now().millisecondsSinceEpoch.toString()
                   };
                   showDialog(
                     context: context,
                     builder: (context) => EditProductInfoPage(
                         result, 'Save Product Info', (result) {
                       addItem(result);
+                      Navigator.pop(context);
                     }),
                   );
                 }

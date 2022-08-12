@@ -42,6 +42,7 @@ dependencies:
   expendable_fab: ^0.0.3
   image_picker: ^0.8.5+3
   flutter_tesseract_ocr: ^0.4.20
+  bottom_sheet: ^3.1.1
 
 dev_dependencies:
   flutter_test:

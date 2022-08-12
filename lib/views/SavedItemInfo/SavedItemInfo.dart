@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../productInfoUI/productInfoUI.dart';
 import '../EditProductInfo/EditProductInfo.dart';
 
-void openSavedItemInfoScreen(
-    context, result, Function(String itemId) deleteItem) {
+void openSavedItemInfoScreen(context, result,
+    Function(String itemId) deleteItem, Function(Map result) editedItem) {
   showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -27,7 +27,9 @@ void openSavedItemInfoScreen(
                             showDialog(
                               context: context,
                               builder: (context) => EditProductInfoPage(
-                                  result, "Save Item", (item) {}),
+                                  result, "Save Item", (item) {
+                                editedItem(item);
+                              }),
                             );
                           },
                           label: const Text("Edit")),
