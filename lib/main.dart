@@ -216,7 +216,24 @@ class _HomePageState extends State<HomePage> {
         distance: 112.0,
         children: [
           FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => EditProductInfoPage({
+                  'title': '',
+                  'images': [
+                    'https://media.istockphoto.com/vectors/image-unavailable-icon-vector-id1206575314?k=20&m=1206575314&s=612x612&w=0&h=vHGhGdWirBbzLm-O15AQuZPnazpHZjtt3vtCBDl-T7g='
+                  ],
+                  'description': '',
+                  'category': '',
+                  'brand': '',
+                  'ean': DateTime.now().millisecondsSinceEpoch.toString()
+                }, 'Add New Product', (result) {
+                  addItem(result);
+                  Navigator.pop(context);
+                }),
+              );
+            },
             child: const Icon(Icons.add),
           ),
           FloatingActionButton(
